@@ -9,6 +9,9 @@ def loadFaceMatrixForTraning():
     train_images = None
     test_images = None
 
+    train_label = []
+    test_label = []
+
     image_size = (100, 100)
 
     for i in range(0, 100):
@@ -25,17 +28,20 @@ def loadFaceMatrixForTraning():
                     test_images = image_vec
                 else:
                     test_images = np.column_stack((test_images, image_vec))
+                test_label.append(i)
             else:
                 if train_images is None:
                     train_images = image_vec
                 else:
                     train_images = np.column_stack((train_images, image_vec))
 
-    return train_images, test_images, image_size
+                train_label.append(i)
+
+    return train_images, test_images, image_size, train_label, test_label
 
 
 # load train, test image and vectorize
-train, test, image_size = loadFaceMatrixForTraning()
+train, test, image_size, train_label, test_label = loadFaceMatrixForTraning()
 
 mean = train.mean(axis=1, keepdims=True)
 
@@ -80,3 +86,10 @@ weight_train = train.T.dot(eigen_faces)
 weight_test = test.T.dot(eigen_faces)
 print("Train's Weight:", weight_train)
 print("Test's Weight:", weight_test)
+
+score_matrix = weight_test.dot(weight_train.T)
+# normalization score
+for i in range(score_matrix.shape[0]):
+    norm = np.linalg.norm(score_matrix[i, :])
+    score_matrix[i,:] = score_matrix[i,:] / norm
+print("Normalize Score:", score_matrix)
